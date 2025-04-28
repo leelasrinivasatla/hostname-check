@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MacBook Hostname Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.5;
+            color: #333;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            font-size: 14px;
+        }
+        a.mac-button {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(180deg, #4b91f7 0%, #367af6 100%);
+            border-radius: 6px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+        a.mac-button:hover {
+            background: linear-gradient(180deg, #5a9cf7 0%, #478bf6 100%);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        a.mac-button:active {
+            background: linear-gradient(180deg, #3d86f5 0%, #2e6eeb 100%);
+        }
+        .mac-info {
+            margin-top: 20px;
+            padding: 10px;
+            border-left: 4px solid #0070c9;
+            background-color: #f2f8ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>MacBook Hostname Collection Test</h1>
+    
+    <p>Click the button below to collect hostname information from your MacBook:</p>
+    
+    <a id="testLink" class="mac-button" onclick="collectHostInfo(event)">Collect Hostname</a>
+    
+    <div class="result" id="result">Results will appear here...</div>
+    
+    <div class="mac-info">
+        <p><strong>Note:</strong> On macOS, the hostname typically follows the format <code>Computer-Name.local</code>. When testing locally, you'll likely see <code>localhost</code> or <code>127.0.0.1</code> depending on how you're accessing this file.</p>
+    </div>
+
+    <script>
+        function collectHostInfo(event) {
+            event.preventDefault();
+            
+            // Collecting hostname and system information
+            const hostInfo = {
+                hostname: window.location.hostname,
+                fullHost: window.location.host,
+                href: window.location.href,
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                isMac: navigator.platform.toLowerCase().includes('mac'),
+                language: navigator.language,
+                screenResolution: `${window.screen.width}x${window.screen.height}`,
+                colorDepth: window.screen.colorDepth,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Get MacBook-specific info when possible
+            if (hostInfo.isMac) {
+                // Check for Safari-specific properties
+                if (navigator.vendor && navigator.vendor.indexOf('Apple') > -1) {
+                    hostInfo.browser = 'Safari';
+                }
+                
+                // Try to get more detailed system info
+                try {
+                    const uaParts = navigator.userAgent.match(/(Mac OS X) ([0-9_]+)/i);
+                    if (uaParts && uaParts.length > 2) {
+                        hostInfo.macOSVersion = uaParts[2].replace(/_/g, '.');
+                    }
+                } catch (e) {
+                    console.error('Error parsing macOS version:', e);
+                }
+            }
+            
+            // Display the collected information
+            document.getElementById('result').innerHTML = `
+                <h3>Collected MacBook Host Information:</h3>
+                <p><strong>Hostname:</strong> ${hostInfo.hostname}</p>
+                <p><strong>Full Host:</strong> ${hostInfo.fullHost}</p>
+                <p><strong>Full URL:</strong> ${hostInfo.href}</p>
+                <p><strong>User Agent:</strong> ${hostInfo.userAgent}</p>
+                <p><strong>Platform:</strong> ${hostInfo.platform}</p>
+                <p><strong>Screen Resolution:</strong> ${hostInfo.screenResolution}</p>
+                ${hostInfo.macOSVersion ? `<p><strong>macOS Version:</strong> ${hostInfo.macOSVersion}</p>` : ''}
+                <p><strong>Language:</strong> ${hostInfo.language}</p>
+                <p><strong>Timestamp:</strong> ${hostInfo.timestamp}</p>
+            `;
+            
+            // For local testing, we're just displaying the data
+            console.log("MacBook host information:", hostInfo);
+            
+            // You could send this data to a server using fetch:
+            /*
+            fetch('https://your-server.com/collect-mac-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(hostInfo),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+            */
+        }
+    </script>
+</body>
+</html>
